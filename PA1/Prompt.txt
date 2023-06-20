@@ -1,8 +1,62 @@
-create a run-length-encoder algorithm. 
-use threads to allow this algorithm to be applied to multiple strings at the same time.
+Problem:
+For this assignment, you will create a multithreaded Run-length encoder (<link>https://en.wikipedia.org/wiki/Run-length_encoding</link>).
 
-input string: "WWWWWWWWWWBWWWWWWWWWWBBWWWWWBBBBBWW"
+Given an input string, you generate the Run-length code and frequencies by executing the following steps:
 
-would become: 
-RLE string: "WWBWWBBWWBBWW"
-RLE freq: 10 10 2 5 5 2
+Determine the RLE string by representing run lengths (runs of a character in the input string) by adding this character twice to the RLE string (any time a character appears twice, it denotes a run).  
+Determine the frequency of the run lengths in the RLE string.
+For example, given the following string:
+
+WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+
+The expected RLE string and frequency array are:
+
+RLE String: WWBWWBBWWBWW
+RLE Frequencies: 12 12 3 24 14
+
+Process:
+
+Your solution must execute the following steps:
+
+Read from STDIN the n strings.
+Create n POSIX threads (where n is the number of strings). Each child thread executes the following tasks:
+          - Receives the string to compress from the main thread.
+
+          - Applies the run-length encoding algorithm to determine the RLE string and the frequency array.
+
+          - Stores the RLE string and the frequency array on a memory location accessible by the main thread.
+
+Print the information about the RLE codes for all strings from the input.
+Given the following input strings:
+
+WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+00000000001000000000001110000000000000001100000000000000000001
+100000000000000000000000000000001
+00000000000000010000000000000000100000000000001000000000000010000000000000
+The expected output is:
+
+Input string: WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+RLE String: WWBWWBBWWBWW
+RLE Frequencies: 12 12 3 24 14 
+
+Input string: 00000000001000000000001110000000000000001100000000000000000001
+RLE String: 00100110011001
+RLE Frequencies: 10 11 3 15 2 19 
+
+Input string: 100000000000000000000000000000001
+RLE String: 1001
+RLE Frequencies: 31 
+
+Input string: 00000000000000010000000000000000100000000000001000000000000010000000000000
+RLE String: 00100100100100
+RLE Frequencies: 15 16 13 13 13
+NOTES:
+
+You can safely assume that the input will always be in the proper format.
+You must use the output statement format based on the example above.
+You can define additional functions if needed. 
+You must present code that is readable and has comments explaining the logic of your solution. A 10% penalty will be applied to submissions not following this guideline.
+You cannot use global variables. A 100% penalty will be applied to submissions using global variables. 
+Not using multiple POSIX threads to implement your solution will translate into a penalty of 100%.
+A penalty of 100% will be applied to solutions that do not compile.
+A penalty of 100% will be applied to solutions hardcoding the output.
