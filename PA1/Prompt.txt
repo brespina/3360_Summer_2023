@@ -1,5 +1,5 @@
 Problem:
-For this assignment, you will create a multithreaded Run-length encoder (<link>https://en.wikipedia.org/wiki/Run-length_encoding</link>).
+For this assignment, you will create a multithreaded Run-length encoder (https://en.wikipedia.org/wiki/Run-length_encoding).
 
 Given an input string, you generate the Run-length code and frequencies by executing the following steps:
 
