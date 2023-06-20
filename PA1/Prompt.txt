@@ -1,0 +1,8 @@
+create a run-length-encoder algorithm. 
+use threads to allow this algorithm to be applied to multiple strings at the same time.
+
+input string: "WWWWWWWWWWBWWWWWWWWWWBBWWWWWBBBBBWW"
+
+would become: 
+RLE string: "WWBWWBBWWBBWW"
+RLE freq: 10 10 2 5 5 2
