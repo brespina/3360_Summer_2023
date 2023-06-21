@@ -1,0 +1,5 @@
+Other Useful Books:
+• Tanenbaum, Operating Systems: Design and Implementation.
+• Silberschatz, Galvin. Operating System Concepts.
+• Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau, Operating Systems: Three Easy
+Pieces, http://pages.cs.wisc.edu/~remzi/OSTEP/. (Free online)
