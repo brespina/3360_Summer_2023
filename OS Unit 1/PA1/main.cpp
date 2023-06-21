@@ -67,12 +67,20 @@ int main() {
 
 //everything following is influenced by Dr. Rincon's thread example programs provided in CANVAS
 
-    //declaring storage for input string x. and POSIX threads.
+    //declaring dynamic for input string x. and POSIX threads.
+
+    // static threadData* x = new threadData[strVect.size()]; 
+    // pthread_t* tid = new pthread_t[strVect.size()];
+    // vector<threadData> x;
+    // vector<pthread_t> tid;
     static struct threadData x[100];
     pthread_t tid[100];
 
+
     	for (int i = 0; i < strVect.size(); i++) {
-            x[i].inputStr = strVect[i]; //populate threadData array x with hardcode strArray
+            x[i].inputStr = strVect[i];
+            cout << x[i].inputStr << endl;
+             //populate threadData array x with hardcode strArray
             if (pthread_create(&tid[i], NULL, rle_encode, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
                 cerr << "Error creating thread" << endl;
                 return 1;
@@ -89,8 +97,11 @@ int main() {
         cout << "RLE Frequencies: ";
         for(int j = 0; j < x[i].rleFreq.size(); j++)  // iterate thru appropriate threadData rleFreq int vector and print
             cout << x[i].rleFreq[j] << " "; 
-
         cout << endl << endl;
     }
+
+    // deallocate memory
+    // delete[] x;
+    // delete[] tid;
 	return 0;
 }
