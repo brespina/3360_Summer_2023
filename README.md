@@ -1,10 +1,7 @@
-# COSC 3360 Spring 2023 - Operating System
-Personal github for organizing COSC 3360 Operating Systems content. <br>
-Taught by Dr. Carlos Rincon <br><br>
-
 # COSC 3360 SUMMER 2023 - Operating System
 
 Personal github for organizing my notes for Dr. Rincon's COSC 3360 Operating Systems content. <br>
+Coding example solutions to provided coding exercises.
 
 
 
@@ -40,8 +37,7 @@ Personal github for organizing my notes for Dr. Rincon's COSC 3360 Operating Sys
 
 ## Credits
 
-- Acknowledge any individuals or resources that contributed to the project.
-- Mention any external libraries, frameworks, or resources used.
+- This github may contain information that I do not own
 
 ## Contact
 
