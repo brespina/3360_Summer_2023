@@ -8,15 +8,13 @@ Coding example solutions to provided coding exercises.
 ## Table of Contents
 
 - [Features](#features)
-- [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
+
 
 ## Features
 
 - List the key features and functionalities of your project.
-
 
 
 ## Usage
@@ -30,10 +28,6 @@ Coding example solutions to provided coding exercises.
 - Explain how other developers can contribute to your project.
 - Include guidelines for pull requests, coding standards, and issue reporting.
 
-## License
-
-- Specify the license under which the project is distributed.
-- Include any additional information or terms related to the license.
 
 ## Credits
 
