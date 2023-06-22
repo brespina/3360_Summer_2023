@@ -1,7 +1,7 @@
 /*
 Brandon Espina
 COSC 3360
-06/20/2023
+06/22/2023
 PROF RINCON
 PROGRAMMING ASSIGNMENT 1
 */
@@ -69,12 +69,12 @@ int main() {
 
     //declaring dynamic for input string x. and POSIX threads.
 
-    // static threadData* x = new threadData[strVect.size()]; 
-    // pthread_t* tid = new pthread_t[strVect.size()];
+    static threadData* x = new threadData[strVect.size()]; 
+    pthread_t* tid = new pthread_t[strVect.size()];
     // vector<threadData> x;
     // vector<pthread_t> tid;
-    static struct threadData x[100];
-    pthread_t tid[100];
+    // static struct threadData x[100];
+    // pthread_t tid[100];
 
 
     	for (int i = 0; i < strVect.size(); i++) {
@@ -101,7 +101,7 @@ int main() {
     }
 
     // deallocate memory
-    // delete[] x;
-    // delete[] tid;
+    delete[] x;
+    delete[] tid;
 	return 0;
 }

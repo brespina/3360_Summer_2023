@@ -24,7 +24,7 @@ int main(void)
                 /* Child process closes up input side of pipe */
 		close(fd[0]);
 		close(1);
-		dup(fd[1]);
+		dup(fd[1]);  // just replaced standard output with fd[1]
                 /* Send "string" through the output side of pipe */
                 strcpy(string,"Hello_from_the_child");
 		printf("%s",string);
@@ -35,7 +35,7 @@ int main(void)
                 /* Parent process closes up output side of pipe */
                 close(fd[1]);
 		close(0);
-		dup(fd[0]);
+		dup(fd[0]);  // replaced standard input with fd[0]
                 /* Read in a string from the pipe */
 		scanf("%s",readbuffer);
                 printf("Received string: %s\n", readbuffer);
