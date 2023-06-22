@@ -69,7 +69,7 @@ int main() {
 
     //declaring dynamic for input string x. and POSIX threads.
 
-    static threadData* x = new threadData[strVect.size()]; 
+    threadData* x = new threadData[strVect.size()]; 
     pthread_t* tid = new pthread_t[strVect.size()];
     // vector<threadData> x;
     // vector<pthread_t> tid;
