@@ -30,7 +30,7 @@ void * rle_encode(void *ptr) {
     std::string rle;
     std::vector<int> freq;
 
-    //for loop that avoids calling .length
+
     for (int i = 0; i < str.length(); i++) { 
         count = 1;
         while (str[i] == str[i + 1]) {   //compare current char with next. if same inc count and i
@@ -63,17 +63,15 @@ int main() {
         strVect.push_back(temp);
 
 
-//everything following is influenced by Dr. Rincon's thread example programs provided in CANVAS
+//everything following is heavily influenced by Dr. Rincon's thread example programs provided in CANVAS
 
     //declaring dynamic for input string x. and POSIX threads.
-
     threadData* x = new threadData[strVect.size()]; 
     pthread_t* tid = new pthread_t[strVect.size()];
 
     for (int i = 0; i < strVect.size(); i++) {
         x[i].inputStr = strVect[i];
-        std::cout << x[i].inputStr << std::endl;
-            //populate threadData array x with hardcode strArray
+
         if (pthread_create(&tid[i], NULL, rle_encode, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
             std::cerr << "Error creating thread" << std::endl;
             return 1;
@@ -91,7 +89,7 @@ int main() {
         std::cout << "RLE Frequencies: ";
         for(int j = 0; j < x[i].rleFreq.size(); j++)  // iterate thru appropriate threadData rleFreq int vector and print
             std::cout << x[i].rleFreq[j] << " ";
-             
+
         std::cout << std::endl << std::endl;
     }
 
