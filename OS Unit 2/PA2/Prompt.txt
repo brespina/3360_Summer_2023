@@ -1,0 +1,78 @@
+Objective:
+This assignment will introduce you to interprocess communication mechanisms in UNIX using sockets.
+
+Problem:
+
+You must write two programs to implement a distributed version of the multithreaded Run-length encoder you created for programming assignment 1. 
+
+These programs are:
+
+The server program:
+The user will execute this program using the following syntax:
+
+./exec_filename port_no
+
+where exec_filename is the name of your executable file and port_no is the port number to create the socket. The port number will be available to the server program as a command-line argument.
+
+The server program receives does not receive any information from STDIN and does not print any messages to STDOUT.
+
+
+The server program executes the following task:
+
+Receive multiple requests from the client program using sockets. Therefore, the server program creates a child process per request to handle these requests simultaneously. For this reason, the parent process must handle zombie processes by implementing the fireman() function call (unless you can determine the number of requests the server program receives from the client program). 
+Each child process executes the following tasks:
+
+First, receive the input string from the client program.
+Next, encode the input string using the RLE algorithm. The child process will generate the RLE string and the frequency array.
+Finally, return the RLE string and the frequency array to the client program using sockets.
+
+The client program:
+The user will execute this program using the following syntax:
+
+./exec_filename hostname port_no < input_filename
+
+where exec_filename is the name of your executable file, hostname is the address where the server program is located, port_no is the port number used by the server program, and input_filename is the name of the input file. The hostname and the port number will be available to the client as command-line arguments.
+
+The client program receives from STDIN (using input redirection) m lines (where m is the number of input strings). Each line of the input file has a string with the information to be encoded.
+
+Example Input File:
+
+WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+00000000001000000000001110000000000000001100000000000000000001
+100000000000000000000000000000001
+00000000000000010000000000000000100000000000001000000000000010000000000000
+
+After reading the information from STDIN, this program creates m child threads (where m is the number of strings in the input files). Each child thread executes the following tasks: 
+Receives the information about the input string from the main thread.
+Create a socket to communicate with the server program.
+Send the input string to the server program using sockets. 
+Wait for the RLE string and the frequency array from the server program.
+Write the received information into a memory location accessible by the main thread.
+Finally, after receiving the binary codes from the child threads, the main thread prints the original message. Given the previous compressed, the expected output is:
+
+Input string: WWWWWWWWWWWWBWWWWWWWWWWWWBBBWWWWWWWWWWWWWWWWWWWWWWWWBWWWWWWWWWWWWWW
+RLE String: WWBWWBBWWBWW
+RLE Frequencies: 12 12 3 24 14 
+
+Input string: 00000000001000000000001110000000000000001100000000000000000001
+RLE String: 00100110011001
+RLE Frequencies: 10 11 3 15 2 19 
+
+Input string: 100000000000000000000000000000001
+RLE String: 1001
+RLE Frequencies: 31 
+
+Input string: 00000000000000010000000000000000100000000000001000000000000010000000000000
+RLE String: 00100100100100
+RLE Frequencies: 15 16 13 13 13
+Notes:
+You can safely assume that the input files will always be in the proper format.
+You must use the output statement format based on the example above.
+For the client program, you must use POSIX Threads and stream sockets. A penalty of 100% will be applied to submissions not using POSIX Threads and Stream Sockets.
+You must use multiple processes (fork) and stream sockets for the server program. A penalty of 100% will be applied to submissions not using multiple processes and Stream Sockets.
+The Moodle server will kill your server program after it is done executing each test case.
+You must present code that is readable and has comments explaining the logic of your solution. A 10% penalty will be applied to submissions not following this guideline.
+You cannot use global variables. A 100% penalty will be applied to submissions using global variables. 
+A penalty of 100% will be applied to solutions that do not compile.
+A penalty of 100% will be applied to solutions hardcoding the output.
+The Moodle server will kill your server program after it is done executing each test case.
