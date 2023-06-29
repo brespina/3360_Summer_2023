@@ -1,6 +1,6 @@
 /*
 Brandon Espina
-06/29/2023
+06/27/2023
 COSC 3360
 Dr. Rincon
 Programming Assignment 2
@@ -117,17 +117,17 @@ int main(int argc, char *argv[])
             }
 
             rle_encode(buffer, rle_str, freq);
-           // std::cout << "Size: " << size << std:: endl;
-            std::cout << "Name of the student that knows how to use sockets: " << rle_str << std::endl;
-            
-            int sMessage = rle_str.length();
+            std::cout << "Size: " << size << std:: endl;
+            std::cout << "Name of the student that knows how to use sockets: " << buffer << std::endl;
+            char message[] = "Hello from Server";
+            int sMessage = strlen(message);
             n = write(newsockfd, &sMessage, sizeof(int));
             if (n < 0)
             {
                 std::cerr << "ERROR writing to socket";
                 exit(1);
             }
-            n = write(newsockfd, rle_str.c_str(), sMessage);
+            n = write(newsockfd, message, sMessage);
             if (n < 0)
             {
                 std::cerr << "ERROR writing to socket";
@@ -137,7 +137,6 @@ int main(int argc, char *argv[])
             delete[] buffer;
             _exit(0);
         }
-        wait(nullptr);
     }
     close(sockfd);
     return 0;

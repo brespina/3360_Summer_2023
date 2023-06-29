@@ -1,15 +1,31 @@
 #include <unistd.h>
 #include <iostream>
 #include <string>
+#include <string.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include <vector>
+
+/*
+want to create a socket function to call pthread_create with.
+isntead of rle function. child trhead should not know anything about the rle function here
+
+add own check function. 
 
 
+*/
 int main(int argc, char *argv[])
 {
-    int sockfd, portno, n;
+        std::vector<std::string> strVect;
+    std::string temp;
+    // read in the input strings from user into vector of strings
+    while(std::cin >> temp)
+        strVect.push_back(temp);
+
+    int sockfd, portno, n, ret;
     std::string buffer;
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -37,14 +53,16 @@ int main(int argc, char *argv[])
          (char *)&serv_addr.sin_addr.s_addr,
          server->h_length);
     serv_addr.sin_port = htons(portno);
-    if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0) 
+    ret = connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
+    std::cout << ret << std::endl;
+    if (ret < 0) 
     {
         std::cerr << "ERROR connecting" << std::endl;
         exit(0);
     }
-    std::cout << "Please enter the message: ";
+    std::cout << "Please enter the message: " << std::endl;
     std::getline(std::cin,buffer);
-    int msgSize = sizeof(buffer);
+    int msgSize = buffer.size();
     n = write(sockfd,&msgSize,sizeof(int));
     if (n < 0) 
     {
