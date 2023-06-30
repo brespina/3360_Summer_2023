@@ -20,6 +20,7 @@ struct threadData { //defining struct of data passed to thread
     std::string inputStr;
     std::string rleStr;
     std::vector<int> rleFreq; 
+    // add variable for portno to pass into openSock in void function call.
 };
 
 //creating void function and manipulating threadData 
@@ -29,7 +30,6 @@ void * rle_encode(void *ptr) {
     std::string str = rleData->inputStr; //threadData input string being fed into str 
     std::string rle;
     std::vector<int> freq;
-
 
     for (int i = 0; i < str.length(); i++) { 
         count = 1;

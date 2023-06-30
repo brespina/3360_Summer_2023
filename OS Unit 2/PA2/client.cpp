@@ -1,33 +1,22 @@
 /*
 Brandon Espina
-06/29/2023
+06/30/2023
 COSC 3360
 Dr. Rincon
 Programming Assignment 2
 client.cpp
 
-
-NOTE: The following code is heavily influenced by Dr. Rincon's socket example code
-      provided in CANVAS and TEAMS.
-      I will be using this a frame of reference.
+WHAT I FIXED:  finally fixed passing int freq array after realizing
+               i was only passing enough bytes for 1 int isntead of 
+               (size of array * sizeof(int)) 
+TODO: Collapse repetitive code into own function e.g. create a "check function."
+      Lots of clean up to do.
+      
+    ..client: add comments. 
+    
+    ..server: add comments.
 */
-/*
-    need socket connection function to call in ptrhead_create
-    send input -> 1 function
-    receive server output -> 1function
-    possibly create pthread_create callf unction
-*/
-//flow of thought: wanted to create socket creation void pionter function for ptc.
-// ran into issue where server connect cannot be achieved without argv[] arguments.
-// need another function that returns an int to establish connection.
-// should then be called within void function?
-// need another function that is int. takes argv[] values as arguments. returns socket();
 
-//openSock works. next is to move the write to void function. call openSock into void func
-// create threads with void.
-
-// Please note this is a C program
-// It compiles without warnings with gcc
 #include <unistd.h>
 #include <iostream>
 #include <string.h>
@@ -83,18 +72,21 @@ void * threadSock(void * ptr) {
     int threadSockfd, n, sizeMess;
     threadSockfd = openSock(tSock->portNum, tSock->servIPAddr);
     sizeMess = (tSock->inputStr).length();
+    //send size of input str
     n = write(threadSockfd, &sizeMess, sizeof(int));
     if (n < 0)
     {
         std::cerr << "ERROR writing to socket";
         exit(1);
     }
+    //send input char array
     n = write(threadSockfd, (tSock->inputStr).c_str(), sizeMess);
     if (n < 0)
     {
         std::cerr << "ERROR writing to socket";
         exit(1);
     }
+    //read size of rle_str 
     int size;
     n = read(threadSockfd, &size, sizeof(int));
     if (n < 0)
@@ -102,18 +94,25 @@ void * threadSock(void * ptr) {
         std::cerr << "ERROR reading from socket";
         exit(1);
     }
+    // read incoming rle_str into bbuffer
     char *buffer = new char[size + 1];
     bzero(buffer, size + 1);
     n = read(threadSockfd, buffer, size);
     tSock->rleStr = buffer;
-    std::cout << buffer << std::endl;
     delete [] buffer;
-    // call to openSock in order to write
-    // n = write(size of inputstr)
-    // n = write(input string to client)
-    // here we should only be calling write or send.
-    // should be called within ptc
-    // the socket connection should be already created
+    int sz;
+    n = read(threadSockfd, &sz, sizeof(int));
+    if(n < 0) 
+    {
+        std::cerr << "ERROR reading from socket";
+        exit(1);
+    }
+    int freq[sz];
+    n = read(threadSockfd, freq, sz * sizeof(int));
+
+    for (int i=0; i<sz; i++) 
+        tSock->rleFreq.push_back(freq[i]); 
+
     close(threadSockfd);
     return NULL;
 }
@@ -139,7 +138,7 @@ int main(int argc, char *argv[])
         x[i].inputStr = strVect[i];
         x[i].portNum = atoi(argv[2]);
         x[i].servIPAddr = argv[1];
-        std::cout << &x[i] << std::endl;
+        //std::cout << &x[i] << std::endl;
 
         if (pthread_create(&tid[i], NULL, threadSock, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
             std::cerr << "Error creating thread" << std::endl;
@@ -151,33 +150,17 @@ int main(int argc, char *argv[])
 	// Wait for the other threads to finish.
 	for (int i = 0; i < strVect.size(); i++)
         	pthread_join(tid[i], NULL);
-    // int sMessage = message.length();
-    // n = write(sockfd, &sMessage, sizeof(int));
-    // if (n < 0)
-    // {
-    //     std::cerr << "ERROR writing to socket";
-    //     exit(1);
-    // }
-    // n = write(sockfd, message.c_str(), sMessage);
-    // if (n < 0)
-    // {
-    //     std::cerr << "ERROR writing to socket";
-    //     exit(1);
-    // }
-    // int size;
-    // n = read(sockfd, &size, sizeof(int));
-    // if (n < 0)
-    // {
-    //     std::cerr << "ERROR reading from socket";
-    //     exit(1);
-    // }
-    // char *buffer = new char[size + 1];
-    // bzero(buffer, size + 1);
-    // n = read(sockfd, buffer, size);
-    // std::cout << buffer << std::endl;
-    // delete [] buffer;
-    // del
-    // close(sockfd);
+
+	for (int i = 0; i < strVect.size(); i++) {  
+        std::cout << "Input string: " << x[i].inputStr << std::endl;
+        std::cout << "RLE String: " << x[i].rleStr << std::endl;
+        std::cout << "RLE Frequencies: ";
+        for(int j = 0; j < x[i].rleFreq.size(); j++)  // iterate thru appropriate threadData rleFreq int vector and print
+            std::cout << x[i].rleFreq[j] << " ";
+
+        std::cout << std::endl << std::endl;
+    }
+    
     delete[] tid;
     delete[] x;
     return 0;

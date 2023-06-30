@@ -1,14 +1,20 @@
 /*
 Brandon Espina
-06/29/2023
+06/30/2023
 COSC 3360
 Dr. Rincon
 Programming Assignment 2
 server.cpp
 
-
-NOTE: this is prof rincons example code from microsoft teams
-      I will be using this a frame of reference.
+WHAT I FIXED:  finally fixed passing int freq array after realizing
+               i was only passing enough bytes for 1 int isntead of 
+               (size of array * sizeof(int)) 
+TODO: Collapse repetitive code into own function e.g. create a "check function."
+      Lots of clean up to do.
+      
+    ..client: add comments. 
+    
+    ..server: add comments.
 */
 
 #include <unistd.h>
@@ -25,31 +31,30 @@ NOTE: this is prof rincons example code from microsoft teams
 
 
  
-/* 
- need socket connection function + process socket in fork call
-*/
-void rle_encode(std::string str, std::string &rle_str, std::string &rle_fre)
-{
+
+void *rle_encode(char * charray, std::string &rleOut, std::vector<int> &freqy) { 
     int count;
- 
-    for (int i = 0; str[i]; i++)
-    {
-        //cout <<"for loop: "<< i << endl;
+    std::string str = charray; //threadData input string being fed into str 
+    //std::string rle;
+    //std::vector<int> freq;
+
+    for (int i = 0; i < str.length(); i++) { 
         count = 1;
-        while (str[i] == str[i + 1]) {
-            //cout << "while loop: " << i << endl;
+        while (str[i] == str[i + 1]) {   //compare current char with next. if same inc count and i
             count++, i++;
         }
-
-        if (count > 1) {
-            rle_str += str[i];
-            rle_str += str[i];
-            rle_fre += std::to_string(count) + " ";
+        
+        if (count > 1) {   //if count > 1 then run has occured
+            rleOut += str[i]; 
+            rleOut += str[i];   // add two instances of that char to RLE string, denoting run.
+            freqy.push_back(count);  // populate vector<int> freq with count of repeated char
         } 
         else {
-            rle_str += str[i];
+            rleOut += str[i]; // if no run occured then add 1 instance of that char
         }
     }
+
+    return NULL;
 }
 
 void fireman(int)
@@ -59,9 +64,6 @@ void fireman(int)
 
 int main(int argc, char *argv[])
 {
-    std::string rle_str = "";
-    std::string freq = "";
-
     int sockfd, newsockfd, portno, clilen;
     struct sockaddr_in serv_addr, cli_addr;
     int n;
@@ -91,7 +93,11 @@ int main(int argc, char *argv[])
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
     while (true)
-    {
+    {   
+        std::vector<int> frequency;
+        frequency.clear();
+        //int freqBuffer[1024];
+        std::string rle_str = "";
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen);
         if (fork() == 0)
         {
@@ -116,9 +122,9 @@ int main(int argc, char *argv[])
                 exit(1);
             }
 
-            rle_encode(buffer, rle_str, freq);
+            rle_encode(buffer, rle_str, frequency);
            // std::cout << "Size: " << size << std:: endl;
-            std::cout << "Name of the student that knows how to use sockets: " << rle_str << std::endl;
+            //std::cout << "RLE output string: " << rle_str << std::endl;
             
             int sMessage = rle_str.length();
             n = write(newsockfd, &sMessage, sizeof(int));
@@ -133,11 +139,30 @@ int main(int argc, char *argv[])
                 std::cerr << "ERROR writing to socket";
                 exit(1);
             }
+            int sFreq = frequency.size();
+            int *fArr =new int[sFreq];
+            for(int i = 0; i < sFreq; i++)
+                fArr[i] = frequency[i];
+            n = write(newsockfd, &sFreq, sizeof(int));
+            if (n < 0 ) 
+            {
+                std::cerr << "ERROR writing to socket";
+                exit(1);
+            }
+            //n = send(newsockfd, &fArr, sFreq * sizeof(int), 0);
+            n = write(newsockfd, fArr ,sFreq * sizeof(int));
+            if (n<0) {
+                std::cerr << "ERROR writing to socket";
+                exit(1);
+            }
+            //handle socket and dynamic array
             close(newsockfd);
             delete[] buffer;
+            delete[] fArr;
+            
             _exit(0);
         }
-        wait(nullptr);
+        //wait(nullptr);
     }
     close(sockfd);
     return 0;
