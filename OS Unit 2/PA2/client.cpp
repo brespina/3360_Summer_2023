@@ -28,21 +28,21 @@ struct threadData { //defining struct of data passed to thread
     char* servIPAddr; //need to also pass this in void thread function
 };
 
- void check(int x, int cmp, std::string errMsg) {
+void check(int x, int cmp, std::string errMsg) {
     if(x < cmp) {
         std::cerr << errMsg << std::endl;
         exit(1);
     }
  }
 
- void checkHost(hostent *h) {
+void checkHost(hostent *h) {
     if (h == NULL) {
         std::cerr << "ERROR, no such host\n";
         exit(0);
     }
  }
 
-
+// open socket with server with arg values from main call. matching server main call.
 int openSock(int portno, char* serverIp) {
 
     int clientSock;
@@ -112,13 +112,11 @@ void produceThreads(std::vector<std::string> sVec, pthread_t* tid, struct thread
             exit(1);
         }
     }
-	
 	// Wait for the other threads to finish.
 	for (int i = 0; i < sVec.size(); i++)
         	pthread_join(tid[i], NULL);
 
 }
-
 
 void printParent(std::vector<std::string> sVec, struct threadData * tData) {
     for (int i = 0; i < sVec.size(); i++) {
@@ -135,7 +133,9 @@ void printParent(std::vector<std::string> sVec, struct threadData * tData) {
 int main(int argc, char *argv[]) {
     std::vector<std::string> strVect;
     std::string temp;
-    // read in the input strings from user into vector of strings
+    char* serv_IP = argv[1];
+    char* port = argv[2];
+
     while(std::cin >> temp)
         strVect.push_back(temp);
 
@@ -144,35 +144,9 @@ int main(int argc, char *argv[]) {
     threadData* x = new threadData[strVect.size()]; 
     pthread_t* tid = new pthread_t[strVect.size()];
 
-    // possibly make a function.
-    // for (int i = 0; i < strVect.size(); i++) {
-    //     x[i].inputStr = strVect[i];
-    //     x[i].portNum = atoi(argv[2]);
-    //     x[i].servIPAddr = argv[1];
-
-    //     if (pthread_create(&tid[i], NULL, threadSock, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
-    //         std::cerr << "Error creating thread" << std::endl;
-    //         return 1;
-    //     }
-    // 	//pthread_join(tid[i], NULL);
-    // }
-	
-	// // Wait for the other threads to finish.
-	// for (int i = 0; i < strVect.size(); i++)
-    //     	pthread_join(tid[i], NULL);
-
-    produceThreads(strVect, tid, x, argv[1], argv[2]);
-
-	// for (int i = 0; i < strVect.size(); i++) {  
-    //     std::cout << "Input string: " << x[i].inputStr << std::endl;
-    //     std::cout << "RLE String: " << x[i].rleStr << std::endl;
-    //     std::cout << "RLE Frequencies: ";
-    //     for(int j = 0; j < x[i].rleFreq.size(); j++)  // iterate thru appropriate threadData rleFreq int vector and print
-    //         std::cout << x[i].rleFreq[j] << " ";
-
-    //     std::cout << std::endl << std::endl;
-    // }
+    produceThreads(strVect, tid, x, serv_IP, port);
     printParent(strVect, x);
+
     delete[] tid;
     delete[] x;
     return 0;
