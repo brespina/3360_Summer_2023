@@ -30,25 +30,21 @@ TODO: Add concise comments to main.
     }
  }
 
-
 // socket connection handle from incoming client request.
 int connectServSock(int portno) {
     int serverSock;
     struct sockaddr_in serv_addr;
 
-    serverSock = socket(AF_INET, SOCK_STREAM, 0);
-    check(serverSock, 0, "ERROR opening socket");
+    check(serverSock = socket(AF_INET, SOCK_STREAM, 0), 0, "SERVER ERROR: opening socket");
 
     bzero((char *)&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
 
-    check(bind(serverSock, (struct sockaddr *)&serv_addr,
-             sizeof(serv_addr)),0,"ERROR on binding");
+    check(bind(serverSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)),0,"ERROR on binding");
     return serverSock;
 }
-
 
 void *rle_encode(char * charray, std::string &rleOut, std::vector<int> &freqy) { 
     int count;
@@ -70,7 +66,6 @@ void *rle_encode(char * charray, std::string &rleOut, std::vector<int> &freqy) {
     return NULL;
 }
 
-// processing client input strings and sending back results
 void handleRequest(int sock) {
     //initialize temp variables
     std::string rle_str = "";
@@ -91,7 +86,7 @@ void handleRequest(int sock) {
     // send client size of rle_str. send client rle_str.
     int sMessage = rle_str.length();
     check(write(sock, &sMessage, sizeof(int)), 0, "ERROR writing to socket");
-    check(write(sock, rle_str.c_str(), sizeof(char) * sMessage), 0, "ERROR writing to socket");
+    check(write(sock, rle_str.c_str(), sMessage), 0, "ERROR writing to socket");
 
     // copy values from frequency vector to int array freqArr. send client size of freqArr. send client freqArr
     int sFreq = frequency.size();
@@ -101,7 +96,7 @@ void handleRequest(int sock) {
     check(write(sock, &sFreq, sizeof(int)), 0, "ERROR writing to socket");
     check(write(sock, freqArr, sFreq * sizeof(int)), 0, "ERROR writing to socket");
 
-    //handle socket and dynamic array
+    // handle socket and dynamic array
     delete[] buffer;
     delete[] freqArr;
     close(sock);
@@ -109,14 +104,13 @@ void handleRequest(int sock) {
     _exit(0);
 }
 
-// deal with zombie processes
 void fireman(int) {  
    while (waitpid(-1, NULL, WNOHANG) > 0);
 }
 
 int main(int argc, char *argv[]) {
     int sockfd, newsockfd, portno, clilen;
-    struct sockaddr_in serv_addr, cli_addr;
+    struct sockaddr_in cli_addr;
     signal(SIGCHLD, fireman); 
 
     check(argc, 2, "ERROR, no port provided\n");
