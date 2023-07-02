@@ -26,8 +26,8 @@ NOTE: The code in connectServSock, handleRequest, and fireman was copied (then m
 #include <netinet/in.h>
 #include <netdb.h>
 
-// simple check function to clean up the 10 billion if statements
-void check(int x, int cmp, std::string errMsg)
+// simple check function to clean up the if statements
+void checkErr(int x, int cmp, std::string errMsg)
 {
     if (x < cmp)
     {
@@ -42,14 +42,14 @@ int connectServSock(int portno)
     int serverSock;
     struct sockaddr_in serv_addr;
 
-    check(serverSock = socket(AF_INET, SOCK_STREAM, 0), 0, "SERVER ERROR: opening socket");
+    checkErr(serverSock = socket(AF_INET, SOCK_STREAM, 0), 0, "SERVER ERROR: opening socket");
 
     bzero((char *)&serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
 
-    check(bind(serverSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)), 0, "SERVER ERROR: on binding");
+    checkErr(bind(serverSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)), 0, "SERVER ERROR: on binding");
     return serverSock;
 }
 
@@ -83,29 +83,29 @@ void handleRequest(int sock)
     std::vector<int> frequency;
     frequency.clear();
 
-    check(sock, 0, "SERVER ERROR: on accept"); // validate socket acceptance
+    checkErr(sock, 0, "SERVER ERROR: on accept"); // validate socket acceptance
 
     // read in size of input str from client. create temp char array buffer. read in input str.
     int size;
-    check(read(sock, &size, sizeof(int)), 0, "SERVER ERROR: reading from socket");
+    checkErr(read(sock, &size, sizeof(int)), 0, "SERVER ERROR: reading from socket");
     char *buffer = new char[size + 1];
     bzero(buffer, size + 1);
-    check(read(sock, buffer, size), 0, "SERVER ERROR: reading from socket");
+    checkErr(read(sock, buffer, size * sizeof(char)), 0, "SERVER ERROR: reading from socket");
 
     rle_encode(buffer, rle_str, frequency); // rle function on client input str
 
     // send client size of rle_str. send client rle_str.
     int sMessage = rle_str.length();
-    check(write(sock, &sMessage, sizeof(int)), 0, "SERVER ERROR: writing to socket");
-    check(write(sock, rle_str.c_str(), sMessage), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, &sMessage, sizeof(int)), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, rle_str.c_str(), sMessage * sizeof(char)), 0, "SERVER ERROR: writing to socket");
 
     // copy values from frequency vector to int array freqArr. send client size of freqArr. send client freqArr
     int sFreq = frequency.size();
     int *freqArr = new int[sFreq];
     for (int i = 0; i < sFreq; i++)
         freqArr[i] = frequency[i];
-    check(write(sock, &sFreq, sizeof(int)), 0, "SERVER ERROR: writing to socket");
-    check(write(sock, freqArr, sFreq * sizeof(int)), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, &sFreq, sizeof(int)), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, freqArr, sFreq * sizeof(int)), 0, "SERVER ERROR: writing to socket");
 
     // handle socket and dynamic array
     delete[] buffer;
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in cli_addr;
     signal(SIGCHLD, fireman);
 
-    check(argc, 2, "SERVER ERROR: no port provided\n");
+    checkErr(argc, 2, "SERVER ERROR: no port provided\n");
 
     portno = atoi(argv[1]);
     sockfd = connectServSock(portno);

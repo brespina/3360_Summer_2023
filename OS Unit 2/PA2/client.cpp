@@ -33,7 +33,8 @@ struct threadData
     char *servIPAddr; // need to also pass this in void thread function
 };
 
-void check(int x, int cmp, std::string errMsg)
+
+void checkErr(int x, int cmp, std::string errMsg)
 {
     if (x < cmp)
     {
@@ -60,7 +61,7 @@ int openSock(int portno, char *serverIp)
     struct hostent *host;
 
     clientSock = socket(AF_INET, SOCK_STREAM, 0);
-    check(clientSock, 0, "ERROR opening socket");
+    checkErr(clientSock, 0, "ERROR opening socket");
 
     host = gethostbyname(serverIp);
     checkHost(host);
@@ -72,7 +73,7 @@ int openSock(int portno, char *serverIp)
           host->h_length);
     serv_addr.sin_port = htons(portno);
 
-    check(connect(clientSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)), 0, "CLIENT ERROR: connecting");
+    checkErr(connect(clientSock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)), 0, "CLIENT ERROR: connecting");
     return clientSock;
 }
 
@@ -83,24 +84,25 @@ void *threadSock(void *ptr)
     threadSockfd = openSock(tSock->portNum, tSock->servIPAddr);
     sizeMess = (tSock->inputStr).length();
 
-    check(write(threadSockfd, &sizeMess, sizeof(int)), 0, "CLIENT ERROR: writing to socket");                             // send size of input str
-    check(write(threadSockfd, (tSock->inputStr).c_str(), sizeMess * sizeof(char)), 0, "CLIENT ERROR: writing to socket"); // send input input str as char array
+    checkErr(write(threadSockfd, &sizeMess, sizeof(int)), 0, "CLIENT ERROR: writing to socket");                             // send size of input str
+    checkErr(write(threadSockfd, (tSock->inputStr).c_str(), sizeMess * sizeof(char)), 0, "CLIENT ERROR: writing to socket"); // send input input str as char array
 
     // read size of rle_str and prepare a buffer to hold incoming rle_str
     int size;
-    check(read(threadSockfd, &size, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
+    checkErr(read(threadSockfd, &size, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
     char *buffer = new char[size + 1];
     bzero(buffer, size + 1);
-    check(read(threadSockfd, buffer, size * sizeof(char)), 0, "CLIENT ERROR: reading from socket");
+    checkErr(read(threadSockfd, buffer, size * sizeof(char)), 0, "CLIENT ERROR: reading from socket");
 
     tSock->rleStr = buffer;
     delete[] buffer;
 
     // read size of rle_freq and prepare a temp dynamic int array to hold value of incoming rle_freq
     int sz;
-    check(read(threadSockfd, &sz, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
+    
+    checkErr(read(threadSockfd, &sz, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
     int *freq = new int[sz];
-    check(read(threadSockfd, freq, sz * sizeof(int)), 0, "CLEINT ERROR: reading from socket");
+    checkErr(read(threadSockfd, freq, sz * sizeof(int)), 0, "CLEINT ERROR: reading from socket");
 
     for (int i = 0; i < sz; i++)
         tSock->rleFreq.push_back(freq[i]); // populate threadData object with temp array.
@@ -111,7 +113,7 @@ void *threadSock(void *ptr)
     return NULL;
 }
 
-void produceThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadData *x, char *servIP, char *port)
+void createThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadData *x, char *servIP, char *port)
 {
     for (int i = 0; i < sVec.size(); i++)
     {
@@ -156,12 +158,12 @@ int main(int argc, char *argv[])
     while (std::cin >> temp)
         strVect.push_back(temp);
 
-    check(argc, 3, "CLIENT ERROR: missing arguments");
+    checkErr(argc, 3, "CLIENT ERROR: missing arguments");
 
     threadData *x = new threadData[strVect.size()];
     pthread_t *tid = new pthread_t[strVect.size()];
 
-    produceThreads(strVect, tid, x, serv_IP, port);
+    createThreads(strVect, tid, x, serv_IP, port);
     printParent(strVect, x);
 
     delete[] tid;
