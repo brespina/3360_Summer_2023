@@ -10,46 +10,42 @@ static pthread_mutex_t bsem;
 static pthread_cond_t rincon = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t castro = PTHREAD_COND_INITIALIZER;
 static char turn[] = "RINCON";
-static bool occupied = false;
-static int num = 5;
+static bool busy = false;
 
 void *access_one_at_a_time(void *family_void_ptr)
 {
+
     pthread_mutex_lock(&bsem);
     char fam[20];
     strcpy(fam, (char *)family_void_ptr);
-    while (occupied == true || strcmp(fam, turn) != 0)
+    while (busy == true || strcmp(fam, turn) != 0)
     {
         if (strcmp(fam, "RINCON") == 0)
-        {
             pthread_cond_wait(&rincon, &bsem);
-        }
         else
-        {
             pthread_cond_wait(&castro, &bsem);
-        }
     }
-    std::cout << fam << " member inside the house" << std::endl;
-    occupied = true;
+    busy = true;
+    std::cout << fam << " member inside the house\n";
     pthread_mutex_unlock(&bsem);
 
     usleep(100);
 
     pthread_mutex_lock(&bsem);
-    std::cout << fam << " member leaving the house" << std::endl;
-    occupied = false;
+    std::cout << fam << " member leaving the house\n";
+    busy = false;
     if (strcmp(turn, "RINCON") == 0)
     {
         strcpy(turn, "CASTRO");
         pthread_cond_signal(&castro);
     }
-    else {
+    else
+    {
         strcpy(turn, "RINCON");
         pthread_cond_signal(&rincon);
     }
     pthread_mutex_unlock(&bsem);
-
-        return NULL;
+    return NULL;
 }
 
 int main()
@@ -64,14 +60,14 @@ int main()
     for (int i = 0; i < nmembers; i++)
     {
         if (i % 2 == 0)
-        {
             strcpy(family[i], "RINCON");
-        }
         else
-        {
             strcpy(family[i], "CASTRO");
+        if (pthread_create(&tid[i], NULL, access_one_at_a_time, (void *)family[i]))
+        {
+            fprintf(stderr, "Error creating thread\n");
+            return 1;
         }
-        pthread_create(&tid[i], NULL, access_one_at_a_time, &family[i]);
     }
     // Wait for the other threads to finish.
     for (int i = 0; i < nmembers; i++)

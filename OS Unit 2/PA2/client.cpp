@@ -23,6 +23,7 @@ NOTE: The code in openSock, threadSock, and produceThread, was copied (then modi
 #include <netinet/in.h>
 #include <netdb.h>
 #include <vector>
+//#include <pthread.h>
 
 struct threadData
 { // defining struct of data passed to thread
@@ -32,7 +33,6 @@ struct threadData
     int portNum;      // add variable for portno to pass into openSock in void function call.
     char *servIPAddr; // need to also pass this in void thread function
 };
-
 
 void checkErr(int x, int cmp, std::string errMsg)
 {
@@ -55,7 +55,6 @@ void checkHost(hostent *h)
 // open socket with server with arg values from main call. matching server main call.
 int openSock(int portno, char *serverIp)
 {
-
     int clientSock;
     struct sockaddr_in serv_addr;
     struct hostent *host;
@@ -99,7 +98,7 @@ void *threadSock(void *ptr)
 
     // read size of rle_freq and prepare a temp dynamic int array to hold value of incoming rle_freq
     int sz;
-    
+
     checkErr(read(threadSockfd, &sz, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
     int *freq = new int[sz];
     checkErr(read(threadSockfd, freq, sz * sizeof(int)), 0, "CLEINT ERROR: reading from socket");

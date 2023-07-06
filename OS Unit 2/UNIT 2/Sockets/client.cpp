@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
          server->h_length);
     serv_addr.sin_port = htons(portno);
     ret = connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr));
-    std::cout << ret << std::endl;
+    //std::cout << ret << std::endl;
     if (ret < 0) 
     {
         std::cerr << "ERROR connecting" << std::endl;
