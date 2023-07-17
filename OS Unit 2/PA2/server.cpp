@@ -1,6 +1,6 @@
 /*
 Brandon Espina
-07/02/2023
+07/07/2023
 COSC 3360
 Dr. Rincon
 Programming Assignment 2
@@ -37,6 +37,7 @@ void checkErr(int x, int cmp, std::string errMsg)
 }
 
 // socket connection handle from incoming client request.
+// this code is copied from Dr. Rincon's provided example code on CANVAS
 int connectServSock(int portno)
 {
     int serverSock;
@@ -87,25 +88,25 @@ void handleRequest(int sock)
 
     // read in size of input str from client. create temp char array buffer. read in input str.
     int size;
-    checkErr(read(sock, &size, sizeof(int)), 0, "SERVER ERROR: reading from socket");
+    checkErr(read(sock, &size, sizeof(int)), 0, "SERVER ERROR: reading size of input str");
     char *buffer = new char[size + 1];
     bzero(buffer, size + 1);
-    checkErr(read(sock, buffer, size * sizeof(char)), 0, "SERVER ERROR: reading from socket");
+    checkErr(read(sock, buffer, size * sizeof(char)), 0, "SERVER ERROR: reading input str");
 
     rle_encode(buffer, rle_str, frequency); // rle function on client input str
 
     // send client size of rle_str. send client rle_str.
     int sMessage = rle_str.length();
-    checkErr(write(sock, &sMessage, sizeof(int)), 0, "SERVER ERROR: writing to socket");
-    checkErr(write(sock, rle_str.c_str(), sMessage * sizeof(char)), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, &sMessage, sizeof(int)), 0, "SERVER ERROR: writing size of RLE str");
+    checkErr(write(sock, rle_str.c_str(), sMessage * sizeof(char)), 0, "SERVER ERROR: writing RLE str");
 
     // copy values from frequency vector to int array freqArr. send client size of freqArr. send client freqArr
     int sFreq = frequency.size();
     int *freqArr = new int[sFreq];
     for (int i = 0; i < sFreq; i++)
         freqArr[i] = frequency[i];
-    checkErr(write(sock, &sFreq, sizeof(int)), 0, "SERVER ERROR: writing to socket");
-    checkErr(write(sock, freqArr, sFreq * sizeof(int)), 0, "SERVER ERROR: writing to socket");
+    checkErr(write(sock, &sFreq, sizeof(int)), 0, "SERVER ERROR: writing size of frequency array");
+    checkErr(write(sock, freqArr, sFreq * sizeof(int)), 0, "SERVER ERROR: writing frequency array");
 
     // handle socket and dynamic array
     delete[] buffer;
@@ -115,6 +116,7 @@ void handleRequest(int sock)
     _exit(0);
 }
 
+// handle zombie processes
 void fireman(int)
 {
     while (waitpid(-1, NULL, WNOHANG) > 0)
@@ -134,6 +136,7 @@ int main(int argc, char *argv[])
     listen(sockfd, 5);
     clilen = sizeof(cli_addr);
 
+    // for every child thread connection made, there is a child process to handle the Request.
     while (true)
     {
         newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen);

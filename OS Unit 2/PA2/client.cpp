@@ -1,6 +1,6 @@
 /*
 Brandon Espina
-07/02/2023
+07/07/2023
 COSC 3360
 Dr. Rincon
 Programming Assignment 2
@@ -23,10 +23,10 @@ NOTE: The code in openSock, threadSock, and produceThread, was copied (then modi
 #include <netinet/in.h>
 #include <netdb.h>
 #include <vector>
-//#include <pthread.h>
 
+// 
 struct threadData
-{ // defining struct of data passed to thread
+{ 
     std::string inputStr;
     std::string rleStr;
     std::vector<int> rleFreq;
@@ -34,6 +34,7 @@ struct threadData
     char *servIPAddr; // need to also pass this in void thread function
 };
 
+// simple check error function to clean up the if statements
 void checkErr(int x, int cmp, std::string errMsg)
 {
     if (x < cmp)
@@ -52,7 +53,8 @@ void checkHost(hostent *h)
     }
 }
 
-// open socket with server with arg values from main call. matching server main call.
+// open socket with server with arg values from main call. matching server main call. 
+// this code is copied from Dr. Rincon's provided example code on CANVAS
 int openSock(int portno, char *serverIp)
 {
     int clientSock;
@@ -60,7 +62,7 @@ int openSock(int portno, char *serverIp)
     struct hostent *host;
 
     clientSock = socket(AF_INET, SOCK_STREAM, 0);
-    checkErr(clientSock, 0, "ERROR opening socket");
+    checkErr(clientSock, 0, "CLIENT ERROR: opening socket");
 
     host = gethostbyname(serverIp);
     checkHost(host);
@@ -78,30 +80,32 @@ int openSock(int portno, char *serverIp)
 
 void *threadSock(void *ptr)
 {
-    struct threadData *tSock = (struct threadData *)ptr; // added int portNum
+    struct threadData *tSock = (struct threadData *)ptr; 
     int threadSockfd, sizeMess;
     threadSockfd = openSock(tSock->portNum, tSock->servIPAddr);
     sizeMess = (tSock->inputStr).length();
 
-    checkErr(write(threadSockfd, &sizeMess, sizeof(int)), 0, "CLIENT ERROR: writing to socket");                             // send size of input str
-    checkErr(write(threadSockfd, (tSock->inputStr).c_str(), sizeMess * sizeof(char)), 0, "CLIENT ERROR: writing to socket"); // send input input str as char array
+    //write size of input str and then write input str to server
+    checkErr(write(threadSockfd, &sizeMess, sizeof(int)), 0, "CLIENT ERROR: writing size of input str");   // send size of input str
+    checkErr(write(threadSockfd, (tSock->inputStr).c_str(), sizeMess * sizeof(char)), 0, "CLIENT ERROR: writing input str"); // send input input str as char array
 
     // read size of rle_str and prepare a buffer to hold incoming rle_str
     int size;
-    checkErr(read(threadSockfd, &size, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
+    checkErr(read(threadSockfd, &size, sizeof(int)), 0, "CLIENT ERROR: reading size of RLE str");
     char *buffer = new char[size + 1];
     bzero(buffer, size + 1);
-    checkErr(read(threadSockfd, buffer, size * sizeof(char)), 0, "CLIENT ERROR: reading from socket");
+    checkErr(read(threadSockfd, buffer, size * sizeof(char)), 0, "CLIENT ERROR: reading RLE str");
 
+    // save buffer's info into structs variable
     tSock->rleStr = buffer;
     delete[] buffer;
 
     // read size of rle_freq and prepare a temp dynamic int array to hold value of incoming rle_freq
     int sz;
 
-    checkErr(read(threadSockfd, &sz, sizeof(int)), 0, "CLIENT ERROR: reading from socket");
+    checkErr(read(threadSockfd, &sz, sizeof(int)), 0, "CLIENT ERROR: reading size of freq array");
     int *freq = new int[sz];
-    checkErr(read(threadSockfd, freq, sz * sizeof(int)), 0, "CLEINT ERROR: reading from socket");
+    checkErr(read(threadSockfd, freq, sz * sizeof(int)), 0, "CLEINT ERROR: reading freq array");
 
     for (int i = 0; i < sz; i++)
         tSock->rleFreq.push_back(freq[i]); // populate threadData object with temp array.
@@ -116,22 +120,23 @@ void createThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadD
 {
     for (int i = 0; i < sVec.size(); i++)
     {
+        // passing info from main function into child thread via array of threadData structs
         x[i].inputStr = sVec[i];
         x[i].servIPAddr = servIP;
-        x[i].portNum = atoi(port);
+        x[i].portNum = atoi(port);  
 
         if (pthread_create(&tid[i], NULL, threadSock, &x[i]))
         { // calling algorithm but also halting if evaluated as TRUE.
             std::cerr << "Error creating thread" << std::endl;
-            // return 1;
             exit(1);
         }
     }
-    // Wait for the other threads to finish.
+
     for (int i = 0; i < sVec.size(); i++)
         pthread_join(tid[i], NULL);
 }
 
+// simple print parent thread. same as PA1
 void printParent(std::vector<std::string> sVec, struct threadData *tData)
 {
     for (int i = 0; i < sVec.size(); i++)
@@ -151,8 +156,9 @@ int main(int argc, char *argv[])
 {
     std::vector<std::string> strVect;
     std::string temp;
-    char *serv_IP = argv[1];
-    char *port = argv[2];
+
+    char *serv_IP = argv[1];  // assigning second argument from main call to serv_ip
+    char *port = argv[2];  // assigning port num as character array to port 
 
     while (std::cin >> temp)
         strVect.push_back(temp);
@@ -162,7 +168,7 @@ int main(int argc, char *argv[])
     threadData *x = new threadData[strVect.size()];
     pthread_t *tid = new pthread_t[strVect.size()];
 
-    createThreads(strVect, tid, x, serv_IP, port);
+    createThreads(strVect, tid, x, serv_IP, port);  // passing in arguments from main into child threads
     printParent(strVect, x);
 
     delete[] tid;
