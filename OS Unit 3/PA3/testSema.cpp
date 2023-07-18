@@ -1,6 +1,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <string>
+#include <sys/wait.h>
 
 struct infoFromMain
 {
@@ -38,7 +39,7 @@ int main()
     int size = input.size();
     turn = size - 1;
     pthread_t *tid = new pthread_t[size];
-    infoFromMain *arg = new infoFromMain[size];
+    infoFromMain *arg = new infoFromMain[size];  // infoFromMain arg; (we can only use one memory address to pass info to children)
     for (int i = 0; i < size; i++)
     {
         arg[i].ch = input[i];
