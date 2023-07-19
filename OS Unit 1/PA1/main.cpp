@@ -51,7 +51,7 @@ void * rle_encode(void *ptr) {
     for (int i=0; i<freq.size(); i++) 
         rleData->rleFreq.push_back(freq[i]); 
 
-    return NULL;
+    return nullptr;
 }
 
 
@@ -72,16 +72,16 @@ int main() {
     for (int i = 0; i < strVect.size(); i++) {
         x[i].inputStr = strVect[i];
 
-        if (pthread_create(&tid[i], NULL, rle_encode, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
+        if (pthread_create(&tid[i], nullptr, rle_encode, &x[i])) {  //calling algorithm but also halting if evaluated as TRUE.
             std::cerr << "Error creating thread" << std::endl;
             return 1;
         }
-    //	pthread_join(tid[i], NULL);
+    //	pthread_join(tid[i], nullptr);
     }
 	
 	// Wait for the other threads to finish.
 	for (int i = 0; i < strVect.size(); i++)
-        	pthread_join(tid[i], NULL);
+        	pthread_join(tid[i], nullptr);
 
 	for (int i = 0; i < strVect.size(); i++) {  
         std::cout << "Input string: " << x[i].inputStr << std::endl;

@@ -46,7 +46,7 @@ void checkErr(int x, int cmp, std::string errMsg)
 
 void checkHost(hostent *h)
 {
-    if (h == NULL)
+    if (h == nullptr)
     {
         std::cerr << "ERROR, no such host\n";
         exit(0);
@@ -113,7 +113,7 @@ void *threadSock(void *ptr)
     delete[] freq;
 
     close(threadSockfd);
-    return NULL;
+    return nullptr;
 }
 
 void createThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadData *x, char *servIP, char *port)
@@ -125,7 +125,7 @@ void createThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadD
         x[i].servIPAddr = servIP;
         x[i].portNum = atoi(port);  
 
-        if (pthread_create(&tid[i], NULL, threadSock, &x[i]))
+        if (pthread_create(&tid[i], nullptr, threadSock, &x[i]))
         { // calling algorithm but also halting if evaluated as TRUE.
             std::cerr << "Error creating thread" << std::endl;
             exit(1);
@@ -133,7 +133,7 @@ void createThreads(std::vector<std::string> sVec, pthread_t *tid, struct threadD
     }
 
     for (int i = 0; i < sVec.size(); i++)
-        pthread_join(tid[i], NULL);
+        pthread_join(tid[i], nullptr);
 }
 
 // simple print parent thread. same as PA1
