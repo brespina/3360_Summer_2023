@@ -74,7 +74,7 @@ void *rle_encode(char *charray, std::string &rleOut, std::vector<int> &freqy)
         else
             rleOut += str[i]; // if no run occured then add 1 instance of that char
     }
-    return NULL;
+    return nullptr;
 }
 
 void handleRequest(int sock)
