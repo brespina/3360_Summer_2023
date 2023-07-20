@@ -1,7 +1,7 @@
 /*
 Brandon Espina
 COSC 3360
-07/19/2023
+07/20/2023
 PROF RINCON
 PROGRAMMING ASSIGNMENT 3
 */
@@ -34,7 +34,7 @@ struct threadData // defining struct of data to be passed into child from main. 
 void *rle_func(std::string input, std::string &rleOut, std::vector<int> &freqy)
 {
     int count;
-    std::string str = input;  // input string received from child thread defined in CS1
+    std::string str = input; // input string received from child thread defined in CS1
 
     for (int i = 0; i < str.length(); i++)
     {
@@ -42,14 +42,14 @@ void *rle_func(std::string input, std::string &rleOut, std::vector<int> &freqy)
         while (str[i] == str[i + 1]) // compare current char with next. if same inc count and i
             count++, i++;
 
-        if (count > 1)  // if count > 1 then run has occured
-        { 
+        if (count > 1) // if count > 1 then run has occured
+        {
             rleOut += str[i];
-            rleOut += str[i];        // add two instances of that char to RLE string, denoting run.
-            freqy.push_back(count);  // populate vector<int> freq with count of repeated char
+            rleOut += str[i];       // add two instances of that char to RLE string, denoting run.
+            freqy.push_back(count); // populate vector<int> freq with count of repeated char
         }
         else
-            rleOut += str[i];  // if no run occured then add 1 instance of that char
+            rleOut += str[i]; // if no run occured then add 1 instance of that char
     }
     return nullptr;
 }
@@ -71,24 +71,19 @@ void printChild(std::string inputStr, std::string rleStr, std::vector<int> frequ
 // creating void function and manipulating threadData
 void *rle_encode(void *ptr)
 {
-    struct threadData rleData = *(struct threadData *)ptr; 
-
-    // ensure that child threads copy the proper ordered instance of shared struct
-    while (*rleData.turn != rleData.threadID)
-        pthread_cond_wait(rleData.wait, rleData.copy);
+    struct threadData rleData = *(struct threadData *)ptr;
 
     // atomically copying instance of shared struct into local variables
     std::string str = rleData.inputStr;
     int threadNum = rleData.threadID;
 
-    pthread_cond_broadcast(rleData.wait);
     pthread_mutex_unlock(rleData.copy); // child unlocks the lock from parent
 /*---------------------------END of CS1---------------------------*/
 
     std::string rle;
     std::vector<int> freq;
 
-    rle_func(str, rle, freq);  // rle_function is concurrently being executed across each child
+    rle_func(str, rle, freq); // rle_function is concurrently being executed across each child
 
 /*--------------------------START of CS2--------------------------*/
     // all children wait turn to print
@@ -98,7 +93,7 @@ void *rle_encode(void *ptr)
     pthread_mutex_unlock(rleData.bsem);
 /*---------------------------END of CS2---------------------------*/
 
-    printChild(str, rle, freq);  
+    printChild(str, rle, freq);
 
 /*--------------------------START of CS3--------------------------*/
     // after print increment turn
@@ -122,25 +117,26 @@ int main()
 
     std::vector<std::string> strVect;
     std::string temp;
+
     //  read in the input strings from moodle into vector of strings
     while (std::cin >> temp)
         strVect.push_back(temp);
 
     pthread_t *tid = new pthread_t[strVect.size()];
-    threadData x;  // requirements restrict our data container to one memory address that must be shared
-
+    threadData x; // requirements restrict our data container to one memory address that must be shared
+    x.turn = &turn;
+    x.bsem = &bsem;
+    x.wait = &wait;
+    x.copy = &copy;
+    
     for (int i = 0; i < strVect.size(); i++)
     {
 /*-------------------------START of CS1-------------------------*/
         pthread_mutex_lock(&copy);
         x.inputStr = strVect[i];
         x.threadID = i;
-        x.turn = &turn;
-        x.bsem = &bsem;
-        x.wait = &wait;
-        x.copy = &copy;
 
-        pthread_create(&tid[i], nullptr, rle_encode, &x);  // CS1 will end in the child thread after data is copied into local variables
+        pthread_create(&tid[i], nullptr, rle_encode, &x); // CS1 will end in the child thread after data is copied into local variables
     }
 
     for (int i = 0; i < strVect.size(); i++)
