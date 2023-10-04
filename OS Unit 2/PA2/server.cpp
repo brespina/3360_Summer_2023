@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
     // for every child thread connection made, there is a child process to handle the Request.
     while (true)
     {
-        newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen);
+        checkErr(newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, (socklen_t *)&clilen), 0, "SERVER ERROR: Error on accepting new connections");
         if (fork() == 0)
             handleRequest(newsockfd);
     }
