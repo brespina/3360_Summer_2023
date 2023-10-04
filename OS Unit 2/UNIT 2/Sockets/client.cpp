@@ -19,11 +19,11 @@ add own check function.
 */
 int main(int argc, char *argv[])
 {
-        std::vector<std::string> strVect;
-    std::string temp;
-    // read in the input strings from user into vector of strings
-    while(std::cin >> temp)
-        strVect.push_back(temp);
+    //     std::vector<std::string> strVect;
+    // std::string temp;
+    // // read in the input strings from user into vector of strings
+    // while(std::cin >> temp)
+    //     strVect.push_back(temp);
 
     int sockfd, portno, n, ret;
     std::string buffer;
